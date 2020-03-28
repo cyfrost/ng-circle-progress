@@ -1,6 +1,6 @@
 {
   "name": "ng-circle-progress-quadrants",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
     "build:watch": "npm run build -- -w",
