@@ -1,6 +1,6 @@
 {
-  "name": "ng-circle-progress",
-  "version": "1.5.0",
+  "name": "ng-circle-progress-quadrants",
+  "version": "1.5.1",
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
     "build:watch": "npm run build -- -w",
@@ -9,11 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bootsoon/ng-circle-progress"
+    "url": "https://github.com/cyfrost/ng-circle-progress"
   },
   "author": {
-    "name": "bootsoon",
-    "email": "bootsoon@aliyun.com"
+    "name": "cyfrost",
+    "email": "cyrus.frost@hotmail.com"
   },
   "keywords": [
     "angular",
@@ -23,7 +23,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bootsoon/ng-circle-progress/issues"
+    "url": "https://github.com/cyfrost/ng-circle-progress/issues"
   },
   "devDependencies": {
     "@angular/cli": "^8.2.2",

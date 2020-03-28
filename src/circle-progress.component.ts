@@ -40,7 +40,7 @@ export interface CircleProgressOptionsInterface {
     subtitleFontWeight?: string;
     imageSrc?: string;
     imageHeight?: number;
-    imageWidth?: number;    
+    imageWidth?: number;
     animation?: boolean;
     animateTitle?: boolean;
     animateSubtitle?: boolean;
@@ -80,6 +80,10 @@ export class CircleProgressOptions implements CircleProgressOptionsInterface {
     outerStrokeGradient = false;
     outerStrokeWidth = 8;
     outerStrokeColor = '#78C000';
+    firstQuadColor = 'red';
+    secondQuadColor = 'blue';
+    thirdQuadColor = 'orange';
+    fourthQuadColor = 'green';
     outerStrokeGradientStopColor = 'transparent';
     outerStrokeLinecap = 'round';
     innerStrokeColor = '#C7E596';
@@ -148,7 +152,7 @@ export class CircleProgressOptions implements CircleProgressOptionsInterface {
                         [attr.fill-opacity]="svg.backgroundCircle.fillOpacity"
                         [attr.stroke]="svg.backgroundCircle.stroke"
                         [attr.stroke-width]="svg.backgroundCircle.strokeWidth"/>
-            </ng-container>            
+            </ng-container>
             <circle *ngIf="options.showInnerStroke"
                     [attr.cx]="svg.circle.cx"
                     [attr.cy]="svg.circle.cy"
@@ -157,18 +161,20 @@ export class CircleProgressOptions implements CircleProgressOptionsInterface {
                     [attr.stroke]="svg.circle.stroke"
                     [attr.stroke-width]="svg.circle.strokeWidth"/>
             <ng-container *ngIf="+options.percent!==0 || options.showZeroOuterStroke">
-                <path *ngIf="!options.outerStrokeGradient"
-                        [attr.d]="svg.path.d"
-                        [attr.stroke]="svg.path.stroke"
-                        [attr.stroke-width]="svg.path.strokeWidth"
-                        [attr.stroke-linecap]="svg.path.strokeLinecap"
-                        [attr.fill]="svg.path.fill"/>
+                <ng-container *ngFor="let path of svg.quadrants">
+                    <path *ngIf="!options.outerStrokeGradient"
+                        [attr.d]="path.d"
+                        [attr.stroke]="path.stroke"
+                        [attr.stroke-width]="path.strokeWidth"
+                        [attr.stroke-linecap]="path.strokeLinecap"
+                        [attr.fill]="path.fill"/>
                 <path *ngIf="options.outerStrokeGradient"
-                        [attr.d]="svg.path.d"
+                        [attr.d]="path.d"
                         attr.stroke="url({{window.location.href}}#{{svg.outerLinearGradient.id}})"
-                        [attr.stroke-width]="svg.path.strokeWidth"
-                        [attr.stroke-linecap]="svg.path.strokeLinecap"
-                        [attr.fill]="svg.path.fill"/>
+                        [attr.stroke-width]="path.strokeWidth"
+                        [attr.stroke-linecap]="path.strokeLinecap"
+                        [attr.fill]="path.fill"/>
+                </ng-container>
             </ng-container>
             <text *ngIf="!options.showImage && (options.showTitle || options.showUnits || options.showSubtitle)"
                   alignment-baseline="baseline"
@@ -198,7 +204,7 @@ export class CircleProgressOptions implements CircleProgressOptionsInterface {
                            [attr.fill]="svg.subtitle.color">{{tspan.span}}</tspan>
                 </ng-container>
             </text>
-            <image *ngIf="options.showImage" preserveAspectRatio="none" 
+            <image *ngIf="options.showImage" preserveAspectRatio="none"
                 [attr.height]="svg.image.height"
                 [attr.width]="svg.image.width"
                 [attr.xlink:href]="svg.image.src"
@@ -233,6 +239,11 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
     @Input() unitsFontSize: string;
     @Input() unitsFontWeight: string;
     @Input() unitsColor: string;
+
+    @Input() firstQuadColor: string;
+    @Input() secondQuadColor: string;
+    @Input() thirdQuadColor: string;
+    @Input() fourthQuadColor: string;
 
     @Input() outerStrokeGradient: boolean;
     @Input() outerStrokeWidth: number;
@@ -274,7 +285,7 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
     @Input() responsive: boolean;
     @Input() startFromZero: boolean;
     @Input() showZeroOuterStroke: boolean;
-    
+
     @Input() lazy: boolean;
 
     @Input('options') templateOptions: CircleProgressOptions;
@@ -460,15 +471,44 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
                 stroke: this.options.backgroundStroke,
                 strokeWidth: this.options.backgroundStrokeWidth,
             },
-            path: {
-                // A rx ry x-axis-rotation large-arc-flag sweep-flag x y (https://developer.mozilla.org/en/docs/Web/SVG/Tutorial/Paths#Arcs)
-                d: `M ${startPoint.x} ${startPoint.y}
-        A ${this.options.radius} ${this.options.radius} 0 ${largeArcFlag} ${sweepFlag} ${endPoint.x} ${endPoint.y}`,
-                stroke: this.options.outerStrokeColor,
-                strokeWidth: this.options.outerStrokeWidth,
-                strokeLinecap: this.options.outerStrokeLinecap,
-                fill: 'none'
-            },
+            quadrants: [
+                {
+                    // A rx ry x-axis-rotation large-arc-flag sweep-flag x y (https://developer.mozilla.org/en/docs/Web/SVG/Tutorial/Paths#Arcs)
+                    d: `M ${startPoint.x} ${startPoint.y}
+            A ${this.options.radius} ${this.options.radius} 0 ${largeArcFlag} ${sweepFlag} ${endPoint.x} ${endPoint.y}`,
+                    stroke: this.options.firstQuadColor,
+                    strokeWidth: this.options.outerStrokeWidth,
+                    strokeLinecap: this.options.outerStrokeLinecap,
+                    fill: 'none'
+                },
+                {
+                    // A rx ry x-axis-rotation large-arc-flag sweep-flag x y (https://developer.mozilla.org/en/docs/Web/SVG/Tutorial/Paths#Arcs)
+                    d: `M ${endPoint.x} ${endPoint.y}
+            A ${this.options.radius} ${this.options.radius} 0 ${largeArcFlag} ${sweepFlag} ${endPoint.y} ${endPoint.x}`,
+                    stroke: this.options.secondQuadColor,
+                    strokeWidth: this.options.outerStrokeWidth,
+                    strokeLinecap: this.options.outerStrokeLinecap,
+                    fill: 'none'
+                },
+                {
+                    // A rx ry x-axis-rotation large-arc-flag sweep-flag x y (https://developer.mozilla.org/en/docs/Web/SVG/Tutorial/Paths#Arcs)
+                    d: `M ${startPoint.x} ${endPoint.x}
+            A ${this.options.radius} ${this.options.radius} 0 ${largeArcFlag} ${sweepFlag} ${startPoint.y} ${endPoint.y}`,
+                    stroke: this.options.thirdQuadColor,
+                    strokeWidth: this.options.outerStrokeWidth,
+                    strokeLinecap: this.options.outerStrokeLinecap,
+                    fill: 'none'
+                },
+                {
+                    // A rx ry x-axis-rotation large-arc-flag sweep-flag x y (https://developer.mozilla.org/en/docs/Web/SVG/Tutorial/Paths#Arcs)
+                    d: `M ${startPoint.y} ${endPoint.y}
+            A ${this.options.radius} ${this.options.radius} 0 ${largeArcFlag} ${sweepFlag} ${endPoint.y} ${startPoint.y}`,
+                    stroke: this.options.fourthQuadColor,
+                    strokeWidth: this.options.outerStrokeWidth,
+                    strokeLinecap: this.options.outerStrokeLinecap,
+                    fill: 'none'
+                }
+            ],
             circle: {
                 cx: centre.x,
                 cy: centre.y,
@@ -713,7 +753,7 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        
+
         this.render();
 
         if('lazy' in changes){
@@ -721,7 +761,7 @@ export class CircleProgressComponent implements OnChanges, OnInit, OnDestroy {
         }
 
     }
-    
+
     constructor(defaultOptions: CircleProgressOptions, private elRef: ElementRef, @Inject(DOCUMENT) private document: any) {
         this.document = document;
         this.window = this.document.defaultView;
